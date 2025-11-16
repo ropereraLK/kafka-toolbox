@@ -1,130 +1,113 @@
 # Kafka Toolbox
 
-A lightweight **Kafka setup and management toolkit** using Docker. Ideal for **local development, testing, and learning Kafka** without consuming heavy system resources.
+A lightweight toolkit to run **Apache Kafka** and **Zookeeper** locally using Docker Compose, with easy start/stop/status scripts.
 
 ---
 
-## Features
+## Project Structure
 
-* Start/stop a **single-node Kafka + Zookeeper cluster** using Docker.
-* Lightweight setup, optimized for laptops and development environments.
-* Ready-to-use scripts for **starting, stopping, checking status, and cleaning Kafka**.
-* Easily extendable to include Redpanda or embedded Kafka setups.
-* Includes example Kafka topic creation for testing.
+```
+kafka-toolbox/
+├── one-time-setup.sh       # One-time setup: fixes permissions for all scripts
+├── start-kafka.sh          # Start Kafka + Zookeeper
+├── stop-kafka.sh           # Stop Kafka + Zookeeper
+├── status-kafka.sh         # Check if containers are running
+├── config/
+│   ├── local.env           # Kafka & Zookeeper versions and config
+│   └── docker-compose.yml  # Docker Compose file for Kafka + Zookeeper
+└── util/
+    ├── docker/
+    │   └── docker-setup.sh # Check Docker installation and daemon
+    └── kafka/
+        └── kafka-setup.sh  # Pull Kafka & Zookeeper images if needed
+```
 
 ---
 
 ## Prerequisites
 
-* Linux / macOS / Windows (with WSL2)
-* Docker installed
-* Docker Compose installed
-* Minimum 2GB free RAM recommended
+- Linux system
+- [Docker](https://docs.docker.com/get-docker/)
+- Docker Compose (V2 plugin included in Docker)
+
+> The scripts include checks for Docker installation and daemon.
 
 ---
 
-## Repository Structure
+## One-time Setup
 
+Run the setup script once to fix permissions for all scripts:
+
+```bash
+chmod +x one-time-setup.sh
+./one-time-setup.sh
 ```
-kafka-toolbox/
-├── docker-compose.yml        # Docker Compose config for Kafka + Zookeeper
-├── kafka-start.sh            # Script to start Kafka cluster
-├── kafka-stop.sh             # Script to stop Kafka cluster
-├── kafka-status.sh           # Script to check running containers and topics
-├── kafka-clean.sh            # Script to remove all containers, volumes, logs
-└── README.md                 # This file
-```
+
+This ensures you can run all scripts without permission issues.
 
 ---
 
-## Setup Instructions
+## Configuration
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/<your-username>/kafka-toolbox.git
-cd kafka-toolbox
-```
-
-### 2. Make Scripts Executable
+Edit `config/local.env` to set your desired Kafka & Zookeeper versions:
 
 ```bash
-chmod +x *.sh
-```
-
-### 3. Start Kafka Cluster
-
-```bash
-./kafka-start.sh
-```
-
-* Starts **Zookeeper** and **Kafka broker** in Docker containers.
-* Verify with:
-
-```bash
-./kafka-status.sh
-```
-
-### 4. Stop Kafka Cluster
-
-```bash
-./kafka-stop.sh
-```
-
-* Stops all running Kafka and Zookeeper containers.
-
-### 5. Clean Up (Optional)
-
-```bash
-./kafka-clean.sh
-```
-
-* Removes containers, volumes, and logs completely.
-
----
-
-## Usage Example
-
-Create a test topic:
-
-```bash
-docker exec -it $(docker ps -qf "name=kafka") \
-  kafka-topics.sh --create --topic test-topic \
-  --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
-```
-
-List topics:
-
-```bash
-docker exec -it $(docker ps -qf "name=kafka") \
-  kafka-topics.sh --list --bootstrap-server localhost:9092
+KAFKA_VERSION=4.1.1
+ZOOKEEPER_VERSION=3.9.0
+DOCKER_NETWORK=kafka-network
 ```
 
 ---
 
-## Recommendations
+## Start Kafka
 
-* Limit Docker CPU/memory if running on a low-resource laptop:
-
-```yaml
-deploy:
-  resources:
-    limits:
-      cpus: '1.0'
-      memory: 1024M
+```bash
+./start-kafka.sh
 ```
 
-* Stop the cluster when not in use to save resources.
+Expected output:
+```
+✅ Docker is available and running.
+✅ Kafka Docker image already exists
+✅ Zookeeper Docker image already exists
+✅ Kafka environment is ready!
+📦 Starting Kafka using docker compose...
+✅ Kafka started successfully!
+📡 Brokers running on: localhost:9092
+```
 
 ---
 
-## Contributing
+## Stop Kafka
 
-* Feel free to extend this repo with **Redpanda**, **embedded Kafka**, or additional utility scripts.
-* Pull requests and issues are welcome.
+```bash
+./stop-kafka.sh
+```
+
+Expected output:
+```
+📦 Stopping Kafka using docker compose...
+✅ Kafka and Zookeeper stopped successfully!
+```
 
 ---
 
-## License
+## Status
 
-MIT License © <Your Name>
+```bash
+./status-kafka.sh
+```
+
+Output:
+```
+✅ Kafka container is running: kafka
+✅ Zookeeper container is running: zookeeper
+```
+
+---
+
+## Utilities
+
+- `util/docker/docker-setup.sh` → Checks Docker installation & daemon.  
+- `util/kafka/kafka-setup.sh` → Pulls Kafka & Zookeeper images if not present.
+
