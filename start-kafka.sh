@@ -40,10 +40,19 @@ fi
 echo "📦 Starting Kafka using docker-compose..."
 docker compose -f "$BASE_DIR/config/docker-compose.yml" up -d
 
-if [ $? -eq 0 ]; then
-    echo "✅ Kafka started successfully!"
-    echo "📡 Brokers running on: localhost:9092"
-else
+if [ $? -ne 0 ]; then
     echo "❌ Failed to start Kafka."
     exit 1
 fi
+
+# Wait for all brokers to be ready
+BROKER_PORTS=($BROKER1_PORT $BROKER2_PORT $BROKER3_PORT)
+for PORT in "${BROKER_PORTS[@]}"; do
+    until nc -z localhost $PORT 2>/dev/null; do
+        echo "⏳ Waiting for Kafka broker on port $PORT..."
+        sleep 2
+    done
+done
+
+echo "✅ Kafka started successfully!"
+echo "📡 Brokers running on: localhost:${BROKER1_PORT}, localhost:${BROKER2_PORT}, localhost:${BROKER3_PORT}"
