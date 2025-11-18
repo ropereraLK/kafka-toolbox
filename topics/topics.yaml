@@ -1,0 +1,32 @@
+# List of Kafka topics to create
+topics:
+  - name: user-events           # Name of the Kafka topic
+    partitions: 3               # Number of partitions
+    replication-factor: 2       # Number of replicas per partition
+    configs:                     # Optional Kafka topic-level configurations
+      # Retention & cleanup
+      cleanup.policy: delete      # Options: delete, compact, compact+delete
+      retention.ms: 604800000    # Time to retain messages (ms)
+      retention.bytes: -1         # Maximum size of topic before old messages are deleted (-1 = unlimited)
+
+      # Segment settings
+      segment.bytes: 1073741824   # Size of a single log segment file (default 1 GB)
+      segment.ms: 604800000       # Max time before a new log segment is rolled (ms)
+
+      # Message & compression
+      max.message.bytes: 1048576  # Maximum size of a single message (default 1 MB)
+      compression.type: producer   # Options: none, gzip, snappy, lz4, zstd
+
+      # Index & performance
+      index.interval.bytes: 4096   # Frequency of index entries
+      file.delete.delay.ms: 60000  # Delay for deleting segments marked for deletion (ms)
+      min.cleanable.dirty.ratio: 0.5 # For compacted topics, min ratio to trigger compaction
+
+  - name: order-events
+    partitions: 5
+    replication-factor: 3
+    configs:
+      cleanup.policy: compact       # Compacted topic keeps only latest key values
+      retention.ms: 259200000       # 3 days
+      max.message.bytes: 2097152    # 2 MB max message size
+      compression.type: lz4         # Compression for topic messages
