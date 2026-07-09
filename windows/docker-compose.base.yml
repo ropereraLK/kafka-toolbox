@@ -1,0 +1,45 @@
+name: kafka-lab
+
+services:
+  broker1:
+    image: apache/kafka:3.9.2
+    container_name: broker1
+    hostname: broker1
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./configs/broker1/server.properties:/opt/kafka/config/kraft/server.properties:ro
+      - ./data/broker1:/var/lib/kafka/data
+    command: >
+      bash -c "/opt/kafka/bin/kafka-storage.sh format --ignore-formatted --cluster-id YOUR_CLUSTER_ID --config /opt/kafka/config/kraft/server.properties && exec /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/kraft/server.properties"
+    networks: [kafka-net]
+
+  broker2:
+    image: apache/kafka:3.9.2
+    container_name: broker2
+    hostname: broker2
+    ports:
+      - "9093:9092"
+    volumes:
+      - ./configs/broker2/server.properties:/opt/kafka/config/kraft/server.properties:ro
+      - ./data/broker2:/var/lib/kafka/data
+    command: >
+      bash -c "/opt/kafka/bin/kafka-storage.sh format --ignore-formatted --cluster-id YOUR_CLUSTER_ID --config /opt/kafka/config/kraft/server.properties && exec /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/kraft/server.properties"
+    networks: [kafka-net]
+
+  broker3:
+    image: apache/kafka:3.9.2
+    container_name: broker3
+    hostname: broker3
+    ports:
+      - "9094:9092"
+    volumes:
+      - ./configs/broker3/server.properties:/opt/kafka/config/kraft/server.properties:ro
+      - ./data/broker3:/var/lib/kafka/data
+    command: >
+      bash -c "/opt/kafka/bin/kafka-storage.sh format --ignore-formatted --cluster-id YOUR_CLUSTER_ID --config /opt/kafka/config/kraft/server.properties && exec /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/kraft/server.properties"
+    networks: [kafka-net]
+
+networks:
+  kafka-net:
+    driver: bridge
